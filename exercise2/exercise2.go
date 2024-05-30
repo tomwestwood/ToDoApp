@@ -98,7 +98,7 @@ func handleUpdate(writer io.Writer) {
 			break
 		}
 
-		fmt.Fprintln(writer, "Updated todo item: '%w'", scanner.Text())
+		fmt.Fprintln(writer, "Updated todo item: ", scanner.Text())
 		break
 	}
 }
@@ -115,14 +115,15 @@ func remove(instruction string) (items []todo.TodoItem, err error) {
 }
 
 func update(writer io.Writer, instruction string) error {
-	for _, todoItem := range todoList {
-		if todoItem.Instruction == instruction {
-			updateStatusTo(writer, &todoItem)
+	for todoItem := range todoList {
+		var item = &todoList[todoItem]
+		if item.Instruction == instruction {
+			updateStatusTo(writer, item)
 			return nil
 		}
 	}
 
-    return fmt.Errorf("Couldn't find that todo item, sorry.")
+    return fmt.Errorf("couldn't find that todo item, sorry.")
 }
 
 func updateStatusTo(writer io.Writer, item *todo.TodoItem) {	
