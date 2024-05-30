@@ -32,8 +32,8 @@ func raceCorrect_InOrder(writer io.Writer) {
 	
 }
 
-func appendStreamToList(oddStream chan int, numbers []int) []int {
-	for result := range oddStream {
+func appendStreamToList(stream chan int, numbers []int) []int {
+	for result := range stream {
 		numbers = append(numbers, result)
 	}
 	return numbers
