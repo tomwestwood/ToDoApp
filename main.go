@@ -11,8 +11,10 @@ import (
 )
 
 
+var todoItems []todo.TodoItem
+
+
 func main() {
-	var todoItems []todo.TodoItem
 	todoItems = append(todoItems, todo.TodoItem{"item one", "Done"}, todo.TodoItem{"item two", "Not Done"}, todo.TodoItem{"item three", "Doing"}, todo.TodoItem{"item four", "Done"})
 
 	//outputItemsToConsole(todoItems)
