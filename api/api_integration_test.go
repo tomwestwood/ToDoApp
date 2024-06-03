@@ -1,35 +1,39 @@
 package api
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
+	"todo/todo"
+	"todo/todostore"
 )
 
-func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	// store := New()
-	// server := NewPlayerServer(store)
-	// player := "Pepper"
+func TestAddingTodoListItems(t *testing.T) {
+	store := todostore.NewInMemoryTodoStore()
+	server := NewTodoServer(store)
 
-	// server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	// server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	// server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
+	item1 := todo.TodoItem { Instruction: "todo item 1", Status: "complete" }
+	item2 := todo.TodoItem { Instruction: "todo item 2", Status: "incomplete"}
 
-	// t.Run("get score", func(t *testing.T) {
-	// 	response := httptest.NewRecorder()
-	// 	server.ServeHTTP(response, newGetScoreRequest(player))
-	// 	assertStatus(t, response.Code, http.StatusOK)
+	server.ServeHTTP(httptest.NewRecorder(), newPostTodoItemRequest(item1))
+	server.ServeHTTP(httptest.NewRecorder(), newPostTodoItemRequest(item2))
 
-	// 	assertResponseBody(t, response.Body.String(), "3")
-	// })
+	t.Run("get todo list", func(t *testing.T) {
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, newTodolistRequest())
+		assertStatus(t, response.Code, http.StatusOK)
 
-	// t.Run("get league", func(t *testing.T) {
-	// 	response := httptest.NewRecorder()
-	// 	server.ServeHTTP(response, newLeagueRequest())
-	// 	assertStatus(t, response.Code, http.StatusOK)
+		assertResponseBody(t, response.Body.String(), "[{\"Instruction\":\"todo item 1\",\"Status\":\"complete\"},{\"Instruction\":\"todo item 2\",\"Status\":\"incomplete\"}]\n")
+	})
 
-	// 	got := getLeagueFromResponse(t, response.Body)
-	// 	want := []Player{
-	// 		{"Pepper", 3},
-	// 	}
-	// 	assertLeague(t, got, want)
-	// })
+	t.Run("test remove item 1", func(t *testing.T) {
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, newRemoveTodoItemRequest(item1))
+		assertStatus(t, response.Code, http.StatusAccepted)
+
+		server.ServeHTTP(response, newTodolistRequest())
+		assertStatus(t, response.Code, http.StatusAccepted)
+
+		assertResponseBody(t, response.Body.String(), "[{\"Instruction\":\"todo item 2\",\"Status\":\"incomplete\"}]\n")
+	})
 }
